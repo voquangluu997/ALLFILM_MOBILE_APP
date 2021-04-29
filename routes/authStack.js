@@ -14,14 +14,14 @@ const screens = {
 };
 const AuthStack = createStackNavigator(
   screens,
-  {
-    initialRouteName: "Login",
-    headerMode: "none",
-  },
-  {
-    initialRouteName: "Register",
-    headerMode: "none",
-  }
+  // {
+  //   initialRouteName: "Login",
+  //   headerMode: "none",
+  // },
+  // {
+  //   initialRouteName: "Register",
+  //   headerMode: "none",
+  // }
 );
 
 export default AuthStack;
