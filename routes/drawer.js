@@ -3,7 +3,7 @@ import { createAppContainer } from "react-navigation";
 import AuthStack from "./authStack";
 
 const RootDrawerNavigator = createDrawerNavigator({
-    Auth: {
+    "Login/Register": {
         screen : AuthStack
     },
     

@@ -6,7 +6,12 @@ import { FlatButton, TransParentButton } from "../shared/button";
 import { Text, View, TextInput, StyleSheet } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 
-export default function Login() {
+export default function Login({navigation}) {
+
+  const pressHandler =()=>{
+    navigation.navigate('Register');
+  } 
+
   return (
     <View style={[globalStyles.container, globalStyles.centerContext]}>
       <Formik
@@ -54,7 +59,7 @@ export default function Login() {
             <Text style={styles.centerText}> Or</Text>
             <TransParentButton
               text="Register"
-              // onPress={props.handleSubmit}
+              onPress = {pressHandler}
             ></TransParentButton>
           </View>
         )}
