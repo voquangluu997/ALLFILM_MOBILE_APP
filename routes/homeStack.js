@@ -1,6 +1,9 @@
 // import { createAppContainer } from "react-navigation";
 import { createStackNavigator } from "react-navigation-stack";
 import Home from "../screens/home";
+import MovieDetail from "../screens/movieDetail";
+import React from "react";
+import Header from "../shared/header";
 
 const screens = {
   Home: {
@@ -8,18 +11,18 @@ const screens = {
     navigationOptions: ({ navigation }) => {
       return {
         headerTitle: () => (
-          // <Header namePage="Review Details" navigation={navigation} />
-          <Text>Home</Text>
+          <Header namePage="ALLFILM" navigation={navigation} />
         ),
         headerTitleAlign: "center",
       };
     },
   },
-};
-constHomeStack = createStackNavigator(screens, {
-  defaultNavigationOptions: {
-    headerStyle: { backgroundColor: "#efe" },
+  MovieDetail: {
+    screen: MovieDetail,
   },
+};
+const HomeStack = createStackNavigator(screens, {
+  headerMode: "none",
 });
 
 export default HomeStack;

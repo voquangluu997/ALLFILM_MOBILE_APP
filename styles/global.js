@@ -35,4 +35,9 @@ export const globalStyles = StyleSheet.create({
     flexDirection: "column",
     justifyContent: "center",
   },
+  centerItem: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
 });

@@ -4,7 +4,6 @@ import { Formik } from "formik";
 import { FlatButton, TransParentButton } from "../shared/button";
 
 import { Text, View, TextInput, StyleSheet } from "react-native";
-import { MaterialIcons } from "@expo/vector-icons";
 
 export default function Login({navigation}) {
 
@@ -73,3 +72,4 @@ let styles = StyleSheet.create({
   centerText: { textAlign: "center", marginTop: 15, marginBottom: 10 },
   // registerButton: { backgroundColor: "#eee", marginTop: 100 },
 });
+
