@@ -7,7 +7,11 @@ import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view
 import { Text, View, TextInput, StyleSheet, ScrollView } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 
-export default function Register() {
+export default function Register({navigation}) {
+
+  const pressHandler =()=>{
+    navigation.navigate('Login');
+  } 
   return (
     <View style={[globalStyles.container, globalStyles.centerContext]}>
       <KeyboardAwareScrollView>
@@ -76,7 +80,7 @@ export default function Register() {
               <Text style={styles.centerText}> Or</Text>
               <TransParentButton
                 text="Login"
-                // onPress={props.handleSubmit}
+                onPress = {pressHandler}
               ></TransParentButton>
             </View>
           )}

@@ -2,7 +2,6 @@
 import { createStackNavigator } from "react-navigation-stack";
 import Login from "../screens/login";
 import Register from "../screens/register";
-import React from "react";
 
 const screens = {
   Login: {
@@ -25,4 +24,5 @@ const AuthStack = createStackNavigator(
 );
 
 export default AuthStack;
+
 // export default createAppContainer(HomeStack);

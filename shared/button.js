@@ -14,8 +14,18 @@ export function FlatButton({ text, onPress }) {
 export function TransParentButton({ text, onPress }) {
   return (
     <TouchableOpacity onPress={onPress}>
-      <View style={styles.transparentButton}>
+      <View style={[styles.button, styles.transparentButton]}>
         <Text style={[styles.buttonText, styles.transparentText]}>{text}</Text>
+      </View>
+    </TouchableOpacity>
+  );
+}
+
+export function BookButton({ text, onPress }) {
+  return (
+    <TouchableOpacity onPress={onPress}>
+      <View style={[styles.button, styles.bookButton]}>
+        <Text style={[styles.buttonText, styles.bookText]}>{text}</Text>
       </View>
     </TouchableOpacity>
   );
@@ -36,15 +46,21 @@ let styles = StyleSheet.create({
     textAlign: "center",
   },
   transparentButton: {
-    borderRadius: 8,
-    paddingVertical: 14,
-    paddingHorizontal: 10,
-    // backgroundColor: "transparent",
     backgroundColor: "transparent",
     borderWidth: 1,
-    
   },
   transparentText: {
-    color: "#000"
-  }
+    color: "#000",
+  },
+  bookButton: {
+    paddingVertical: 7,
+    paddingHorizontal: 5,
+    backgroundColor: "transparent",
+    borderWidth: 1,
+    borderColor: "#fff"
+  },
+  bookText: {
+    color: "#fff",
+    fontSize: 14
+  },
 });
