@@ -224,7 +224,7 @@ export const newSeason = [
   },
 ];
 
-export const commingSoon = [
+export const comingSoon = [
   {
     name: "Thiên Thần Hộ Mệnh",
     time: " 124 minutes",

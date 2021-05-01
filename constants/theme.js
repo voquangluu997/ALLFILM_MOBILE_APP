@@ -9,6 +9,7 @@ export const COLORS = {
   lightGray: "#dedede",
   transparentWhite: "rgba(255, 255, 255, 0.2)",
   transparentBlack: "rgba(0, 0, 0, 0.4)",
+  title:"yellow"
 };
 
 export const SIZES = {

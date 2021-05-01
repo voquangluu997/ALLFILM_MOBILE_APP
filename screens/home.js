@@ -14,44 +14,15 @@ import {
   StyleSheet,
   SliderComponent,
 } from "react-native";
-
-import { COLORS, SIZES, FONTS, images } from "../constants";
+import renderHeaderBar from "../shared/herderBar";
+import { COLORS, SIZES } from "../constants";
 import { BookButton } from "../shared/button";
-import { newSeason, commingSoon } from "../constants/dummy";
+import { newSeason, comingSoon } from "../constants/dummy";
+import TitleBar from "../shared/titleBar";
+import ComingSoonComponent from "../shared/comingSoonComponent";
+
 const Home = ({ navigation }) => {
   const newSeasonScrollX = React.useRef(new Animated.Value(0)).current;
-
-  function renderHeader() {
-    return (
-      <View
-        style={{
-          paddingTop: 30,
-          flexDirection: "row",
-          justifyContent: "space-between",
-          alignItems: "center",
-          paddingHorizontal: SIZES.padding,
-        }}
-      >
-        <TouchableOpacity
-          style={styles.formatIcon}
-          onPress={() => console.log("Profile")}
-        >
-          {/* <Image
-            source={images.profile_photo}
-            style={{ width: 40, height: 40, borderRadius: 20 }}
-          /> */}
-          <MaterialIcons name="settings" color={COLORS.primary} size={40} />
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={styles.formatIcon}
-          onPress={() => console.log("Code")}
-        >
-          <MaterialIcons name="code" color={COLORS.lightGray} size={40} />
-        </TouchableOpacity>
-      </View>
-    );
-  }
   function renderNewSeasonSection() {
     return (
       <View
@@ -76,17 +47,14 @@ const Home = ({ navigation }) => {
           keyExtractor={(item) => `${item.name}`}
           renderItem={({ item, index }) => {
             let titleFilmShow =
-              item.name.length < 13
+              item.name.length < 16
                 ? item.name
-                : item.name.slice(0, 13).trim() + "...";
+                : item.name.slice(0, 14).trim() + "..";
             return (
               <TouchableWithoutFeedback
-                onPress={
-                  () => {
-                    navigation.navigate("MovieDetail", { selectedMovie: item });
-                  }
-                  // navigation.navigate("MovieDetail", { selectedMovie: item })
-                }
+                onPress={() => {
+                  navigation.navigate("MovieDetail", { selectedMovie: item });
+                }}
               >
                 <View
                   style={{
@@ -101,10 +69,12 @@ const Home = ({ navigation }) => {
                     source={{ uri: item.img }}
                     resizeMode="cover"
                     style={{
+                      borderRadius: 40,
                       width: SIZES.width * 0.85,
                       height: SIZES.width * 1.1,
                       justifyContent: "center",
                       alignItems: "center",
+                      // backgroundColor : "#f3f"
                     }}
                     imageStyle={{ borderRadius: 40 }}
                   >
@@ -232,89 +202,26 @@ const Home = ({ navigation }) => {
     );
   }
 
-  function renderCommingSoon() {
-    return (
-      <View style={{ marginTop: SIZES.padding }}>
-        {/* Header */}
-        <View
-          style={{
-            flexDirection: "row",
-            paddingHorizontal: SIZES.padding,
-            alignItems: "center",
-            justifyContent: "flex-start",
-          }}
-        >
-          <Text
-            style={{
-              flex: 1,
-              color: "#fff",
-              fontWeight: "bold",
-              fontSize: 20,
-            }}
-          >
-            Comming Soon
-          </Text>
-          <MaterialIcons
-            name="keyboard-arrow-right"
-            color={COLORS.primary}
-            size={24}
-          />
-        </View>
-
-        {/* List */}
-
-        <FlatList
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={{ marginTop: SIZES.padding }}
-          data={commingSoon}
-          keyExtractor={(item) => `${item.name}`}
-          renderItem={({ item, index }) => {
-            let titleFilmShow =
-              item.name.length < 16
-                ? item.name
-                : item.name.slice(0, 16).trim() + "...";
-
-            return (
-              <TouchableWithoutFeedback
-                onPress={() => {
-                  navigation.navigate("MovieDetail", { selectedMovie: item });
-                }}
-              >
-                <View
-                  style={{
-                    marginLeft: index == 0 ? SIZES.padding : 20,
-                    marginRight:
-                      index == commingSoon.length - 1 ? SIZES.padding : 0,
-                  }}
-                >
-                  {/* poster */}
-                  <Image
-                    source={{ uri: item.img }}
-                    resizeMode="cover"
-                    style={{
-                      borderRadius: 20,
-                      width: SIZES.width / 3,
-                      height: SIZES.width / 3 + 60,
-                    }}
-                  ></Image>
-                  {/* name */}
-                  <Text style={{ marginTop: SIZES.base, color: "#fff" }}>
-                    {titleFilmShow}
-                  </Text>
-                  {/* progessBar */}
-                </View>
-              </TouchableWithoutFeedback>
-            );
-          }}
-        ></FlatList>
-      </View>
-    );
+  function renderComingSoon() {
+    return <ComingSoonComponent data={comingSoon} navigation={navigation} />;
   }
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: "#000" }}>
-      {renderHeader()}
+      {renderHeaderBar(
+        {
+          name: "code",
+          onPress: () => {
+            console.log("code");
+          },
+        },
+        {
+          name: "settings",
+          onPress: () => {
+            console.log("settings");
+          },
+        }
+      )}
       <ScrollView
         contentContainerStyle={{
           paddingBottom: 100,
@@ -322,18 +229,11 @@ const Home = ({ navigation }) => {
       >
         {renderNewSeasonSection()}
         {renderDots()}
-        {renderCommingSoon()}
+        {renderComingSoon()}
       </ScrollView>
     </SafeAreaView>
   );
 };
 export default Home;
 
-const styles = StyleSheet.create({
-  formatIcon: {
-    alignItems: "center",
-    justifyContent: "center",
-    width: 50,
-    height: 50,
-  },
-});
+const styles = StyleSheet.create({});
