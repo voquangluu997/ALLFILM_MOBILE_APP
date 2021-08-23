@@ -8,7 +8,7 @@ import {
 } from "react-native";
 import { COLORS, SIZES } from "../constants";
 import TitleBar from "./titleBar";
-export default function ComingSoonComponent({ navigation, data }) {
+export default function ChildComponent({ navigation, data }) {
   return (
     <View style={{ marginTop: SIZES.padding }}>
       {/* Header */}

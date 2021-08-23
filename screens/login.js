@@ -1,36 +1,105 @@
-import React from "react";
+import React, { useState } from "react";
 import { globalStyles } from "../styles/global";
 import { Formik } from "formik";
 import { FlatButton, TransParentButton } from "../shared/button";
+import { api_url } from "../constants";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { Text, View, TextInput, StyleSheet, ScrollView } from "react-native";
+import { setUserSession } from "../utils/common";
+import axios from "axios";
+import { API_URL } from "@env";
 
-import { Text, View, TextInput, StyleSheet } from "react-native";
+export default function Login({ navigation }) {
+  const [message, setMessage] = useState("");
+  const pressHandler = () => {
+    navigation.navigate("Register");
+  };
 
-export default function Login({navigation}) {
-
-  const pressHandler =()=>{
-    navigation.navigate('Register');
-  } 
+  async function saveUserToken(value) {
+    try {
+      await AsyncStorage.setItem("token", value);
+    } catch (e) {
+      console.log(e);
+    }
+  }
 
   return (
-    <View style={[globalStyles.container, globalStyles.centerContext]}>
+    <ScrollView
+      contentContainerStyle={[
+        globalStyles.container,
+        globalStyles.centerContext,
+      ]}
+    >
       <Formik
         initialValues={{ username: "", password: "" }}
-        onSubmit={(values, actions) => {
-          actions.resetForm();
+        onSubmit={async (values, actions) => {
+          axios
+            .post(`${API_URL}/auth/login`, {
+              username: "anhnguyenhoang321@gmail.com",
+              // username: values.username,
+              // password: values.password,
+              password: "Aa@12345",
+            })
+            .then(async (response) => {
+              if (!response.error) {
+                let user = await axios.get(`${API_URL}/user/profile`, {
+                  headers: {
+                    Authorization: `Bearer ${response.data.access_token}`,
+                  },
+                });
+
+                setUserSession(response.data.access_token, user.data);
+                navigation.navigate("Home");
+              } else {
+                setMessage(resData.error.errors[0].message);
+              }
+            })
+            .catch((error) => {
+              console.log(error);
+              alert(error);
+            });
+
+          // fetch(api_url + "/auth/login", {
+          //   method: "POST",
+          //   headers: {
+          //     Accept: "application/json",
+          //     "Content-Type": "application/json",
+          //   },
+          //   body: JSON.stringify({
+          //     username: "anhnguyenhoang321@gmail.com",
+          //     // username: values.username,
+          //     // password: values.password,
+          //     password: "Aa@12345",
+          //   }),
+          // })
+          //   .then((res) => res.json())
+          //   .then((resData) => {
+          //     if (!resData.error) {
+          //       navigation.navigate("Home");
+          //       saveUserToken(resData.access_token);
+          //     } else {
+          //       setMessage(resData.error.errors[0].message);
+          //     }
+          //   })
+          //   .catch((error) => {
+          //     alert(error);
+          //   });
+
+          // actions.resetForm();
         }}
       >
         {(props) => (
           <View>
             <TextInput
               style={globalStyles.input}
-              placeholder="Username"
+              placeholder="Username/Email"
               onChangeText={props.handleChange("username")}
               value={props.values.username}
               onBlur={props.handleBlur("username")}
             />
-            {/* <Text style={globalStyles.errorText}>
-              {props.touched.title && props.errors.title}
-            </Text> */}
+            <Text style={globalStyles.errorText}>
+              {props.touched.username && props.errors.title}
+            </Text>
 
             <TextInput
               style={globalStyles.input}
@@ -40,15 +109,8 @@ export default function Login({navigation}) {
               value={props.values.password}
               onBlur={props.handleBlur("password")}
             />
-            {/* <Text style={globalStyles.errorText}>
-              {props.touched.body && props.errors.body}
-            </Text> */}
 
-            {/* <Button
-              title="submit"
-              color="maroon"
-              onPress={props.handleSubmit}
-            ></Button> */}
+            <Text style={globalStyles.errorText}>{message}</Text>
 
             <FlatButton text="Login" onPress={props.handleSubmit}></FlatButton>
 
@@ -58,12 +120,12 @@ export default function Login({navigation}) {
             <Text style={styles.centerText}> Or</Text>
             <TransParentButton
               text="Register"
-              onPress = {pressHandler}
+              onPress={pressHandler}
             ></TransParentButton>
           </View>
         )}
       </Formik>
-    </View>
+    </ScrollView>
   );
 }
 
@@ -72,4 +134,3 @@ let styles = StyleSheet.create({
   centerText: { textAlign: "center", marginTop: 15, marginBottom: 10 },
   // registerButton: { backgroundColor: "#eee", marginTop: 100 },
 });
-

@@ -7,8 +7,8 @@ import {
   ScrollView,
 } from "react-native";
 import { WebView } from "react-native-webview";
-import { COLORS, SIZES } from "../constants";
-import renderHeaderBar from "../shared/herderBar";
+import { COLORS, SIZES, api_url } from "../constants";
+import renderHeaderBar from "../shared/headerBar";
 import { LinearGradient } from "expo-linear-gradient";
 import { BookButton } from "../shared/button";
 import { MaterialIcons } from "@expo/vector-icons";
@@ -16,16 +16,22 @@ import TitleBar from "../shared/titleBar";
 
 const MovieDetail = ({ navigation }) => {
   const [selectedMovie, setSelectedMovie] = useState(null);
-
+  async function fetchMoviesJSON(id) {
+    const response = await fetch(api_url + "/film/" + id);
+    const movies = await response.json();
+    return movies;
+  }
   useEffect(() => {
     let selectedMovie = navigation.getParam("selectedMovie");
-    setSelectedMovie(selectedMovie);
+    fetchMoviesJSON(selectedMovie.id).then((movie) => {
+      setSelectedMovie(movie);
+    });
   }, []);
 
   function renderHeaderSection() {
     return (
       <ImageBackground
-        source={{ uri: selectedMovie?.img }}
+        source={{ uri: selectedMovie?.poster }}
         resizeMode="cover"
         style={{
           width: "100%",
@@ -93,7 +99,7 @@ const MovieDetail = ({ navigation }) => {
             { marginLeft: 0 },
           ]}
         >
-          Date: {selectedMovie?.date}
+          Date: {selectedMovie?.publishDate}
         </Text>
         <View style={styles.categoryContainer}>
           <MaterialIcons name="star" color="yellow" size={16} />
@@ -103,7 +109,12 @@ const MovieDetail = ({ navigation }) => {
         </View>
 
         <View style={{ marginLeft: SIZES.base }}>
-          <BookButton text="Book now" />
+          <BookButton
+            text="Book now"
+            onPress={() => {
+              navigation.navigate("Booking", { selectedMovie: selectedMovie });
+            }}
+          />
         </View>
       </View>
     );
@@ -114,7 +125,9 @@ const MovieDetail = ({ navigation }) => {
         <TitleBar title=" Movie Details" />
         <View style={{ marginVertical: SIZES.padding }}>
           <View style={styles.contentContainer}>
-            <Text style={styles.contentText}>{selectedMovie?.content} </Text>
+            <Text style={styles.contentText}>
+              {selectedMovie?.description}{" "}
+            </Text>
           </View>
 
           <View style={styles.detailContainer}>
@@ -126,7 +139,12 @@ const MovieDetail = ({ navigation }) => {
             >
               Type
             </Text>
-            <Text style={styles.detailText}>: {selectedMovie?.type} </Text>
+            <Text style={styles.detailText}>
+              :
+              {selectedMovie?.FilmTypes.reduce((acc, curr) => {
+                return acc == " " ? acc + curr.name : acc + ", " + curr.name;
+              }, " ")}
+            </Text>
           </View>
 
           <View style={styles.detailContainer}>
@@ -138,7 +156,9 @@ const MovieDetail = ({ navigation }) => {
             >
               Time
             </Text>
-            <Text style={styles.detailText}>: {selectedMovie?.time} </Text>
+            <Text style={styles.detailText}>
+              : {selectedMovie?.duration} minutes{" "}
+            </Text>
           </View>
 
           <View style={styles.detailContainer}>
@@ -150,7 +170,12 @@ const MovieDetail = ({ navigation }) => {
             >
               Actor
             </Text>
-            <Text style={styles.detailText}>: {selectedMovie?.actor} </Text>
+            <Text style={styles.detailText}>
+              :
+              {selectedMovie?.Actors.reduce((acc, curr) => {
+                return acc == " " ? acc + curr.name : acc + ", " + curr.name;
+              }, " ")}
+            </Text>
           </View>
           <View style={styles.detailContainer}>
             <Text
@@ -161,7 +186,9 @@ const MovieDetail = ({ navigation }) => {
             >
               Director
             </Text>
-            <Text style={styles.detailText}>: {selectedMovie?.director} </Text>
+            <Text style={styles.detailText}>
+              : {selectedMovie?.Director.name}
+            </Text>
           </View>
 
           <View style={styles.detailContainer}>
@@ -173,7 +200,7 @@ const MovieDetail = ({ navigation }) => {
             >
               Country
             </Text>
-            <Text style={styles.detailText}>: {selectedMovie?.country} </Text>
+            <Text style={styles.detailText}>: {selectedMovie?.nation} </Text>
           </View>
 
           <View style={styles.detailContainer}>
@@ -185,7 +212,9 @@ const MovieDetail = ({ navigation }) => {
             >
               Date{" "}
             </Text>
-            <Text style={styles.detailText}>: {selectedMovie?.date} </Text>
+            <Text style={styles.detailText}>
+              : {selectedMovie?.publishDate}{" "}
+            </Text>
           </View>
         </View>
       </View>
@@ -200,7 +229,13 @@ const MovieDetail = ({ navigation }) => {
           <WebView
             javaScriptEnabled={true}
             domStorageEnabled={true}
-            source={{ uri: "https://www.youtube.com/embed/" + "uEoA9Gf0LiE" }}
+            source={{
+              uri:
+                "https://www.youtube.com/embed" +
+                selectedMovie?.trailer.slice(
+                  selectedMovie?.trailer.lastIndexOf("/")
+                ),
+            }}
           />
         </View>
       </View>

@@ -1,34 +1,43 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { MaterialIcons } from "@expo/vector-icons";
 import {
   Text,
   View,
   SafeAreaView,
-  FlatList,
   TouchableWithoutFeedback,
-  Image,
   ImageBackground,
   ScrollView,
   Animated,
-  TouchableOpacity,
   StyleSheet,
-  SliderComponent,
 } from "react-native";
-import renderHeaderBar from "../shared/herderBar";
-import { COLORS, SIZES } from "../constants";
+import renderHeaderBar from "../shared/headerBar";
+import { COLORS, SIZES, api_url } from "../constants";
 import { BookButton } from "../shared/button";
 import { newSeason, comingSoon } from "../constants/dummy";
-import TitleBar from "../shared/titleBar";
-import ComingSoonComponent from "../shared/comingSoonComponent";
+import ChildComponent from "../shared/childComponent";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+
+import { StackActions, NavigationActions } from "react-navigation";
 
 const Home = ({ navigation }) => {
+  let [newSeasonB, setNewSeasonB] = useState([]);
+
+  async function fetchMoviesJSON() {
+    const response = await fetch(api_url + "/film?limit=10");
+    const movies = await response.json();
+    return movies;
+  }
+
+  fetchMoviesJSON().then((movies) => {
+    setNewSeasonB(movies);
+  });
+
   const newSeasonScrollX = React.useRef(new Animated.Value(0)).current;
   function renderNewSeasonSection() {
     return (
       <View
         style={{
           width: SIZES.width,
-          // backgroundColor: "red",
           alignItems: "center",
           justifyContent: "center",
           borderRadius: 40,
@@ -43,13 +52,17 @@ const Home = ({ navigation }) => {
           scrollEventThrottle={10000}
           decelerationRate={0}
           contentContainerStyle={{ marginTop: SIZES.radius }}
-          data={newSeason}
-          keyExtractor={(item) => `${item.name}`}
+          data={newSeasonB}
+          keyExtractor={(item) => `${item.title}`}
           renderItem={({ item, index }) => {
+            function onPressBooking() {
+              navigation.navigate("Booking", { selectedMovie: item });
+            }
+
             let titleFilmShow =
-              item.name.length < 16
-                ? item.name
-                : item.name.slice(0, 14).trim() + "..";
+              item.title.length < 16
+                ? item.title.toLowerCase()
+                : item.title.slice(0, 14).trim().toLowerCase() + "..";
             return (
               <TouchableWithoutFeedback
                 onPress={() => {
@@ -62,11 +75,10 @@ const Home = ({ navigation }) => {
                     alignItems: "center",
                     justifyContent: "center",
                     borderRadius: 40,
-                    // backgroundColor: "#f3f",
                   }}
                 >
                   <ImageBackground
-                    source={{ uri: item.img }}
+                    source={{ uri: item.image }}
                     resizeMode="cover"
                     style={{
                       borderRadius: 40,
@@ -74,7 +86,6 @@ const Home = ({ navigation }) => {
                       height: SIZES.width * 1.1,
                       justifyContent: "center",
                       alignItems: "center",
-                      // backgroundColor : "#f3f"
                     }}
                     imageStyle={{ borderRadius: 40 }}
                   >
@@ -111,7 +122,6 @@ const Home = ({ navigation }) => {
                       style={{
                         flexDirection: "column",
                         justifyContent: "center",
-                        // backgroundColor: "#000",
                       }}
                     >
                       <Text
@@ -129,11 +139,11 @@ const Home = ({ navigation }) => {
                           color: "#fff",
                         }}
                       >
-                        {item.time}, {item.date}
+                        {/* {item.duration}, {item.publishDate} */}
                       </Text>
                     </View>
 
-                    <BookButton text="Book now" />
+                    <BookButton text="Book now" onPress={onPressBooking} />
                   </View>
                 </View>
               </TouchableWithoutFeedback>
@@ -166,7 +176,7 @@ const Home = ({ navigation }) => {
           justifyContent: "center",
         }}
       >
-        {newSeason.map((item, index) => {
+        {newSeasonB.map((item, index) => {
           const opacity = dotPositon.interpolate({
             inputRange: [index - 1, index, index + 1],
             outputRange: [0.3, 1, 0.3],
@@ -203,7 +213,7 @@ const Home = ({ navigation }) => {
   }
 
   function renderComingSoon() {
-    return <ComingSoonComponent data={comingSoon} navigation={navigation} />;
+    return <ChildComponent data={comingSoon} navigation={navigation} />;
   }
 
   return (
