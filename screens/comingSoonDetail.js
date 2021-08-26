@@ -1,6 +1,4 @@
 import React, { useState, useEffect } from "react";
-import { comingSoon } from "../constants/dummy";
-import ChildComponent from "../shared/childComponent";
 import {
   Text,
   View,
@@ -17,14 +15,9 @@ import { BookButton } from "../shared/button";
 import { MaterialIcons } from "@expo/vector-icons";
 import TitleBar from "../shared/titleBar";
 import { getUser, getToken } from "../utils/common";
-import axios from "axios";
 
-const MovieDetail = ({ navigation }) => {
+const ComingSoonDetail = ({ navigation }) => {
   const [selectedMovie, setSelectedMovie] = useState(null);
-  const [start, setStart] = useState(0);
-  const [isLogin, setIsLogin] = useState(false);
-  const [token, setToken] = useState(null);
-  let arrStart = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
 
   async function fetchMoviesJSON(id) {
     const response = await fetch(api_url + "/film/" + id);
@@ -32,25 +25,15 @@ const MovieDetail = ({ navigation }) => {
     return movies;
   }
   useEffect(() => {
-    getUser().then((u) => {
-      if (u) setIsLogin(true);
-      console.log("user:", u);
-    });
-
-    getToken().then((t) => {
-      setToken(t);
-    });
-
     let selectedMovie = navigation.getParam("selectedMovie");
-    fetchMoviesJSON(selectedMovie.id).then((movie) => {
-      setSelectedMovie(movie);
-    });
+console.log(selectedMovie);
+    setSelectedMovie(selectedMovie);
   }, []);
 
   function renderHeaderSection() {
     return (
       <ImageBackground
-        source={{ uri: selectedMovie?.poster }}
+        source={{ uri: selectedMovie?.img }}
         resizeMode="cover"
         style={{
           width: "100%",
@@ -118,22 +101,13 @@ const MovieDetail = ({ navigation }) => {
             { marginLeft: 0 },
           ]}
         >
-          Date: {selectedMovie?.publishDate}
+          Date: {selectedMovie?.date}
         </Text>
         <View style={styles.categoryContainer}>
           <MaterialIcons name="star" color="yellow" size={16} />
           <Text style={[styles.categoryText, { marginLeft: 3 }]}>
             {selectedMovie?.rating}
           </Text>
-        </View>
-
-        <View style={{ marginLeft: SIZES.base }}>
-          <BookButton
-            text="Book now"
-            onPress={() => {
-              navigation.navigate("Booking", { selectedMovie: selectedMovie });
-            }}
-          />
         </View>
       </View>
     );
@@ -144,9 +118,7 @@ const MovieDetail = ({ navigation }) => {
         <TitleBar title=" Movie Details" />
         <View style={{ marginVertical: SIZES.padding }}>
           <View style={styles.contentContainer}>
-            <Text style={styles.contentText}>
-              {selectedMovie?.description}{" "}
-            </Text>
+            <Text style={styles.contentText}>{selectedMovie?.content} </Text>
           </View>
 
           <View style={styles.detailContainer}>
@@ -158,12 +130,7 @@ const MovieDetail = ({ navigation }) => {
             >
               Type
             </Text>
-            <Text style={styles.detailText}>
-              :
-              {selectedMovie?.FilmTypes.reduce((acc, curr) => {
-                return acc == " " ? acc + curr.name : acc + ", " + curr.name;
-              }, " ")}
-            </Text>
+            <Text style={styles.detailText}>:{selectedMovie?.type}</Text>
           </View>
 
           <View style={styles.detailContainer}>
@@ -176,7 +143,7 @@ const MovieDetail = ({ navigation }) => {
               Time
             </Text>
             <Text style={styles.detailText}>
-              : {selectedMovie?.duration} minutes{" "}
+              : {selectedMovie?.time} minutes{" "}
             </Text>
           </View>
 
@@ -189,12 +156,7 @@ const MovieDetail = ({ navigation }) => {
             >
               Actor
             </Text>
-            <Text style={styles.detailText}>
-              :
-              {selectedMovie?.Actors.reduce((acc, curr) => {
-                return acc == " " ? acc + curr.name : acc + ", " + curr.name;
-              }, " ")}
-            </Text>
+            <Text style={styles.detailText}>:{selectedMovie?.actor}</Text>
           </View>
           <View style={styles.detailContainer}>
             <Text
@@ -205,9 +167,7 @@ const MovieDetail = ({ navigation }) => {
             >
               Director
             </Text>
-            <Text style={styles.detailText}>
-              : {selectedMovie?.Director.name}
-            </Text>
+            <Text style={styles.detailText}>: {selectedMovie?.director}</Text>
           </View>
 
           <View style={styles.detailContainer}>
@@ -219,7 +179,7 @@ const MovieDetail = ({ navigation }) => {
             >
               Country
             </Text>
-            <Text style={styles.detailText}>: {selectedMovie?.nation} </Text>
+            <Text style={styles.detailText}>: {selectedMovie?.country} </Text>
           </View>
 
           <View style={styles.detailContainer}>
@@ -231,9 +191,7 @@ const MovieDetail = ({ navigation }) => {
             >
               Date{" "}
             </Text>
-            <Text style={styles.detailText}>
-              : {selectedMovie?.publishDate}{" "}
-            </Text>
+            <Text style={styles.detailText}>: {selectedMovie?.date} </Text>
           </View>
         </View>
       </View>
@@ -249,11 +207,7 @@ const MovieDetail = ({ navigation }) => {
             javaScriptEnabled={true}
             domStorageEnabled={true}
             source={{
-              uri:
-                "https://www.youtube.com/embed" +
-                selectedMovie?.trailer.slice(
-                  selectedMovie?.trailer.lastIndexOf("/")
-                ),
+              uri: selectedMovie?.trailer,
             }}
           />
         </View>
@@ -279,58 +233,15 @@ const MovieDetail = ({ navigation }) => {
       {/* Movie detail */}
 
       {renderDetails()}
-      <TitleBar title="Review this movie"></TitleBar>
-      <View style={{ paddingLeft: 20, flexDirection: "row" }}>
-        {arrStart.map((item, i) => {
-          return (
-            <MaterialIcons
-              style={{ marginRight: 5, marginTop: 15, marginBottom: 15 }}
-              name="star"
-              color={i + 1 > start ? "#ccc" : "yellow"}
-              size={26}
-              onPress={() => {
-                setStart(i + 1);
-              }}
-            />
-          );
-        })}
-      </View>
-      <View style={{ marginBottom: 10 }}>
-        <View flexDirection="row" justifyContent="center">
-          <BookButton
-            text="review"
-            onPress={() => {
-              const config = {
-                headers: { Authorization: `Bearer ${token}` },
-              };
 
-              if (!isLogin) alert("you need login to review this movie");
-              else {
-                axios
-                  .post(
-                    `${api_url}/film/${selectedMovie?.id}/rating/${start}`,
-                    { id: selectedMovie?.id, point: start },
-                    config
-                  )
-                  .then((res) => {
-                    alert("Thanks for your review");
-                  })
-                  .catch((error) => {
-                    alert("you already review this movie");
-                  });
-              }
-            }}
-          ></BookButton>
-        </View>
-      </View>
-
-      <ChildComponent data={comingSoon} navigation={navigation} />
-      <View style={{ marginTop: 30 }}></View>
+      {/* <View>
+        <BookButton text="review"></BookButton>
+      </View> */}
     </ScrollView>
   );
 };
 
-export default MovieDetail;
+export default ComingSoonDetail;
 
 const styles = StyleSheet.create({
   categoryContainer: {

@@ -9,7 +9,8 @@ export const COLORS = {
   lightGray: "#dedede",
   transparentWhite: "rgba(255, 255, 255, 0.2)",
   transparentBlack: "rgba(0, 0, 0, 0.4)",
-  title:"yellow"
+  title: "yellow",
+  pink: "#D82C8B",
 };
 
 export const SIZES = {
@@ -18,6 +19,7 @@ export const SIZES = {
   font: 14,
   radius: 12,
   padding: 24,
+  padding2: 30,
 
   //font sizes
 
