@@ -1,4 +1,4 @@
-import { SeatButton, SeatTitle } from "./button";
+import { SeatButton, SeatChoosed, SeatTitle } from "./button";
 import React, { useState } from "react";
 import {
   Text,
@@ -12,51 +12,67 @@ import { MaterialIcons } from "@expo/vector-icons";
 import { Dimensions } from "react-native";
 import { set } from "react-native-reanimated";
 
-export default function BookSeat({ bookedSeats }) {
+export default function BookSeat({ bookedSeats, onSubmit }) {
+  const [isChoosing, setIsChoosing] = useState(false);
+
+  const getTitle = (n) => {
+    switch (n) {
+      case 0:
+        return "A";
+        break;
+      case 1:
+        return "B";
+        break;
+      case 2:
+        return "C";
+        break;
+      case 3:
+        return "D";
+        break;
+      case 4:
+        return "E";
+        break;
+      case 5:
+        return "F";
+        break;
+      case 6:
+        return "G";
+        break;
+      case 7:
+        return "H";
+        break;
+      case 8:
+        return "I";
+        break;
+      case 9:
+        return "J";
+        break;
+    }
+  };
+
+  const handleSubmit = (i) => {
+    setIsChoosing(i);
+    onSubmit({ isChoosing: `${getTitle(Math.floor(i / 12))}-${i % 12}` });
+  };
   const list = () => {
     const seats = bookedSeats?.split(",");
-    const arrTitle = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J"];
-    const getTitle = (n) => {
-      switch (n) {
-        case 0:
-          return "A";
-          break;
-        case 1:
-          return "B";
-          break;
-        case 2:
-          return "C";
-          break;
-        case 3:
-          return "D";
-          break;
-        case 4:
-          return "E";
-          break;
-        case 5:
-          return "F";
-          break;
-        case 6:
-          return "G";
-          break;
-        case 7:
-          return "H";
-          break;
-        case 8:
-          return "I";
-          break;
-        case 9:
-          return "J";
-          break;
-      }
-    };
+
     const arrEmpty = [];
     for (let i = 0; i < 120; i++) arrEmpty.push(i % 12);
     let seatMap = arrEmpty?.map((e, i) => {
-      // if (seats)
-      // if (seats.includes(`${getTitle(i % 10)}-${i % 12}`))
-      console.log(`${getTitle(Math.ceil(i / 11))}-${i % 12}`);
-      return <SeatButton text={e}></SeatButton>;
+      if (seats)
+        if (seats.includes(`${getTitle(Math.floor(i / 12))}-${i % 12}`))
+          return <SeatChoosed text={e}></SeatChoosed>;
+        else
+          return (
+            <SeatButton
+              text={e}
+              onPress={() => {
+                handleSubmit(i);
+              }}
+              isChoosing={i == isChoosing}
+            ></SeatButton>
+          );
     });
     let rs = [];
     let line = [];

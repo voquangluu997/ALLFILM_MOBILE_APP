@@ -8,11 +8,11 @@ import {
 } from "react-native";
 import { COLORS, SIZES } from "../constants";
 import TitleBar from "./titleBar";
-export default function ChildComponent({ navigation, data }) {
+export default function Promotion({ navigation, data }) {
   return (
     <View style={{ marginTop: SIZES.padding2 }}>
       {/* Header */}
-      <TitleBar title="Coming soon" />
+      <TitleBar title="Promotions" />
       {/* List */}
 
       <FlatList
@@ -30,7 +30,7 @@ export default function ChildComponent({ navigation, data }) {
           return (
             <TouchableWithoutFeedback
               onPress={() => {
-                navigation.navigate("ComingSoonDetail", { selectedMovie: item });
+                navigation.navigate("PromotionDetail", { selectedPromotion: item });
               }}
             >
               <View
@@ -41,7 +41,7 @@ export default function ChildComponent({ navigation, data }) {
               >
                 {/* poster */}
                 <Image
-                  source={{ uri: item.img }}
+                  source={{ uri: item.image }}
                   resizeMode="cover"
                   style={{
                     borderRadius: 20,

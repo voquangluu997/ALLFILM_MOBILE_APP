@@ -12,6 +12,10 @@ export function ProfileLine({ title, onPress }) {
         paddingVertical: SIZES.base,
         alignItems: "center",
         justifyContent: "flex-start",
+        borderBottomColor:"#aaa",
+        borderBottomWidth:0.5,
+        marginBottom:10
+
       }}
       onPress={onPress}
     >

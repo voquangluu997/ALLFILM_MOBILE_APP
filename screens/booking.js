@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
+
 import {
   BookButton,
-  FlatButton,
   SeatButton,
   SeatChoosing,
   SeatChoosed,
@@ -24,6 +24,9 @@ import DayCard from "../shared/dayCard";
 import { globalStyles } from "../styles/global";
 import TitleBar from "../shared/titleBar";
 import { MaterialIcons } from "@expo/vector-icons";
+import { food_drinkApi, bookingApi } from "../api";
+import { getUser, getToken } from "../utils/common";
+import axios from "axios";
 
 export default function Booking({ navigation }) {
   let date = (today) => {
@@ -64,6 +67,13 @@ export default function Booking({ navigation }) {
   let [openModal, setOpenModal] = useState(false);
   let [session, setSession] = useState([]);
   let [seatSession, setSeatSession] = useState({});
+  let [choosingSeat, setChoosingSeat] = useState(null);
+  let [numSeat, setNumSeat] = useState(1);
+  let [quatity, setQuatity] = useState([0, 0, 0, 0, 0]);
+  let [food, setFood] = useState({});
+  let [totalPrice, setTotalPrice] = useState(0);
+  let [token, setToken] = useState(null);
+  let [err, setErr] = useState(null);
 
   async function fetchSessionJSON() {
     const response = await fetch(
@@ -83,6 +93,18 @@ export default function Booking({ navigation }) {
   }
 
   useEffect(() => {
+    getToken().then((t) => {
+      setToken(t);
+    });
+    setTotalPrice(0);
+    const getFood = async () => {
+      try {
+        const res = await food_drinkApi.get();
+        setFood(res);
+      } catch (error) {
+        console.log(error);
+      }
+    };
     let today = new Date();
     chooseDay = date(today);
     showChooseDay = getDay(today.getDay()) + ", " + date(today);
@@ -103,25 +125,83 @@ export default function Booking({ navigation }) {
         fullDate: date(futureFullDate),
       });
     }
+    getFood();
     setArrDay(arrDay);
   }, []);
 
   let handleBookSeat = () => {
+    let d = new Date();
+    let bookingTime = `${d.getFullYear()}-${
+      d.getMonth() + 1
+    }-${d.getDate()} ${d.getHours()}:${d.getMinutes()}:${d.getSeconds()}`;
+
+    let d2 = new Date(
+      d.getFullYear(),
+      d.getMonth() + 1,
+      d.getDate(),
+      d.getHours(),
+      d.getMinutes() + 15,
+      d.getSeconds()
+    );
+
+    let keepingTime = `${d2.getFullYear()}-${d2.getMonth()}-${d2.getDate()} ${d2.getHours()}:${d2.getMinutes()}:${d2.getSeconds()}`;
+
     console.log("book seatt");
+    let foodDrinks = quatity
+      ?.map((item, i) => {
+        return { id: (i + 1).toString(), count: item.toString() };
+      })
+      .filter((e) => {
+        return e.count > 0;
+      });
+
+    let paymentInfo = {
+      fee: totalPrice + numSeat * seatSession?.price,
+      sessionId: seatSession?.id,
+      sessionRoomId: seatSession?.roomId,
+      seats: choosingSeat,
+      foodDrinks,
+      bookingTime,
+      keepingTime,
+    };
+    let getBooking = async () => {
+      const config = {
+        headers: { Authorization: `Bearer ${token}` },
+      };
+      // const res = await bookingApi.booking(paymentInfo);
+      axios
+        .post(`${api_url}/booking`, paymentInfo, config)
+        .then((res) => {
+          console.log("kkkkkkkk", res.data);
+          navigation.navigate("Payment", { paymentInfo: res.data });
+        })
+        .catch((error) => {
+          alert("Chỗ đã được đặt, vui lòng kiểm tra lại");
+
+          console.log(error);
+        });
+    };
+    getBooking();
   };
   function renderModal() {
     return (
       <Modal
         visible={openModal}
         animationType="slide"
-        style={styles.modalContainer}
+        style={{ ...styles.modalContainer, position: "relative" }}
       >
         <TouchableWithoutFeedback onPress={() => Keyboard.dismiss}>
           <View style={styles.modalContent}>
-            <View style={{ flexDirection: "row", alignItems: "center" }}>
+            <View
+              style={{
+                flexDirection: "row",
+                alignItems: "center",
+                marginTop: 5,
+              }}
+            >
               <MaterialIcons
                 name="chevron-left"
-                size={24}
+                size={44}
                 onPress={() => setOpenModal(false)}
                 style={{
                   ...styles.modalToggle,
@@ -139,71 +219,247 @@ export default function Booking({ navigation }) {
               </View>
             </View>
 
-            <View style={{ marginTop: 50 }}>
-              <BookSeat bookedSeats={seatSession.bookedSeats} />
-            </View>
-
             <View
               style={{
-                flexDirection: "column",
-                flex: 1,
+                flexDirection: "row",
                 alignItems: "center",
-                marginTop: 40,
+                borderBottomColor: "#000",
+                borderBottomWidth: 0.5,
+                paddingBottom: 5,
               }}
             >
-              <Text
-                style={{
-                  fontSize: SIZES.h2,
-                  fontWeight: "bold",
-                  textTransform: "uppercase",
-                }}
-              >
-                Screen
-              </Text>
+              <Text style={{ fontSize: 22 }}>{` Tickets: ${numSeat} `}</Text>
 
-              <Text
-                style={{
-                  marginTop: 5,
-                  borderTopWidth: 2,
-                  borderTopColor: "#000",
-                  color: "transparent",
+              <SeatButton
+                text="-"
+                onPress={() => {
+                  setNumSeat(numSeat > 1 ? numSeat - 1 : 1);
                 }}
-              >
-                alooodddddddddddddddddddd
-              </Text>
+              ></SeatButton>
+              <SeatButton
+                text="+"
+                onPress={() => {
+                  setNumSeat(numSeat + 1);
+                }}
+              ></SeatButton>
+            </View>
+
+            <ScrollView>
+              <View style={{ marginTop: 30 }}>
+                <BookSeat
+                  bookedSeats={seatSession.bookedSeats}
+                  onSubmit={(seat) => {
+                    setChoosingSeat(seat.isChoosing);
+                  }}
+                />
+              </View>
+
+              {err ? (
+                <View backgroundColor="#000">
+                  {" "}
+                  <Text>err</Text>
+                </View>
+              ) : (
+                <View pointerEvents="none"></View>
+              )}
 
               <View
                 style={{
                   flexDirection: "column",
                   flex: 1,
+                  alignItems: "center",
+                  marginTop: 30,
                 }}
               >
-                <View
+                <Text
                   style={{
-                    flexDirection: "row",
-                    alignItems: "center",
-                    marginBottom: 10,
+                    fontSize: SIZES.h2,
+                    fontWeight: "bold",
+                    textTransform: "uppercase",
                   }}
                 >
-                  <SeatChoosing> </SeatChoosing>
-                  <Text> Ghế đang chọn</Text>
-                </View>
-                <View
+                  Screen
+                </Text>
+
+                <Text
                   style={{
-                    flexDirection: "row",
-                    alignItems: "center",
-                    marginBottom: 10,
+                    marginTop: 5,
+                    borderTopWidth: 2,
+                    borderTopColor: "#000",
+                    color: "transparent",
                   }}
                 >
-                  <SeatChoosed> </SeatChoosed>
-                  <Text> Ghế đã bán</Text>
-                </View>
-                <View style={{ flexDirection: "row", alignItems: "center" }}>
-                  <SeatButton> </SeatButton>
-                  <Text> Ghế có thể đặt</Text>
+                  alooodddddddddddddddddddd
+                </Text>
+
+                <View
+                  style={{
+                    flexDirection: "column",
+                    flex: 1,
+                  }}
+                >
+                  <View
+                    style={{
+                      flexDirection: "row",
+                      alignItems: "center",
+                      marginBottom: 10,
+                    }}
+                  >
+                    <SeatChoosing> </SeatChoosing>
+                    <Text> Ghế đang chọn</Text>
+                  </View>
+                  <View
+                    style={{
+                      flexDirection: "row",
+                      alignItems: "center",
+                      marginBottom: 10,
+                    }}
+                  >
+                    <SeatChoosed> </SeatChoosed>
+                    <Text> Ghế đã bán</Text>
+                  </View>
+                  <View style={{ flexDirection: "row", alignItems: "center" }}>
+                    <SeatButton> </SeatButton>
+                    <Text> Ghế có thể đặt</Text>
+                  </View>
                 </View>
               </View>
-            </View>
+
+              {/* <View> */}
+              <View
+                style={{
+                  flexDirection: "column",
+                  justifyContent: "center",
+                  paddingBottom: 5,
+                  marginTop: 15,
+                }}
+              >
+                <Text
+                  style={{
+                    fontSize: 18,
+                    fontWeight: "700",
+                    paddingLeft: 10,
+                    borderBottomColor: "#000",
+                    borderBottomWidth: 0.5,
+                  }}
+                >
+                  {" "}
+                  FOOD/DRINK
+                </Text>
+                <View
+                  style={{
+                    flexDirection: "row",
+                    marginTop: 10,
+                    backgroundColor: "#000",
+                    padding: 3,
+                  }}
+                >
+                  <View style={{ paddingLeft: 5, width: 100 }}>
+                    <Text style={{ fontWeight: "bold", color: "#fff" }}>
+                      Combo
+                    </Text>
+                  </View>
+                  <View style={{ width: 100 }}>
+                    <Text style={{ fontWeight: "bold", color: "#fff" }}>
+                      Quatity
+                    </Text>
+                  </View>
+                  <View style={{ width: 100 }}>
+                    <Text style={{ fontWeight: "bold", color: "#fff" }}>
+                      Price(VND)
+                    </Text>
+                  </View>
+                  <View style={{ width: 100 }}>
+                    <Text style={{ fontWeight: "bold", color: "#fff" }}>
+                      Total(VND)
+                    </Text>
+                  </View>
+                </View>
+              </View>
+              <FlatList
+                data={food}
+                renderItem={({ item, index }) => {
+                  return (
+                    <View
+                      style={{
+                        flexDirection: "row",
+                        justifyContent: "space-between",
+                      }}
+                    >
+                      <View
+                        style={{
+                          paddingLeft: 5,
+                          width: 100,
+                          marginVertical: 4,
+                        }}
+                      >
+                        <Text> {item?.name}</Text>
+                      </View>
+
+                      <View
+                        style={{
+                          flexDirection: "row",
+                          width: 100,
+                          marginVertical: 4,
+                        }}
+                      >
+                        <View style={{ width: 20 }}>
+                          <Text> {`${quatity[index]} `}</Text>
+                        </View>
+
+                        <SeatButton
+                          text="-"
+                          onPress={() => {
+                            let q = quatity;
+
+                            setTotalPrice(
+                              q[index] > 0
+                                ? totalPrice - item?.price
+                                : totalPrice
+                            );
+                            q[index] = q[index] > 0 ? q[index] - 1 : 0;
+
+                            setQuatity(q);
+                          }}
+                        ></SeatButton>
+                        <SeatButton
+                          text="+"
+                          onPress={() => {
+                            let q = quatity;
+                            q[index] = quatity[index] + 1;
+
+                            setQuatity(q);
+                            setTotalPrice(totalPrice + item?.price);
+                          }}
+                        ></SeatButton>
+                      </View>
+
+                      <View style={{ width: 100, marginVertical: 4 }}>
+                        <Text> {item?.price}</Text>
+                      </View>
+                      <View style={{ width: 100, marginVertical: 4 }}>
+                        <Text> {quatity[index] * item?.price}</Text>
+                      </View>
+                    </View>
+                  );
+                }}
+              />
+
+              <View
+                style={{
+                  flexDirection: "row",
+                  marginTop: 10,
+                  backgroundColor: "#000",
+                  justifyContent: "center",
+                }}
+              >
+                <Text style={{ fontWeight: "bold", color: "#fff" }}>{`Total: ${
+                  totalPrice + numSeat * seatSession?.price
+                }VND`}</Text>
+              </View>
+
+              {/* </View> */}
+            </ScrollView>
 
             <View style={styles.bookingModal}>
               <View style={styles.bookingModalLeft}>
@@ -226,6 +482,7 @@ export default function Booking({ navigation }) {
                     style={{
                       fontSize: SIZES.h4,
                       fontWeight: "bold",
+                      color: "#fff",
                     }}
                   >
                     {seatSession.Room
@@ -236,15 +493,16 @@ export default function Booking({ navigation }) {
                     style={{
                       fontSize: SIZES.h4,
                       fontWeight: "bold",
+                      color: "#fff",
                     }}
                   >
-                    Price: {seatSession?.price}Đ{" "}
+                    {`Price: ${seatSession?.price}Đ x ${numSeat}`}
                   </Text>
                 </View>
               </View>
 
               <View style={styles.bookingModalRight}>
-                <FlatButton text="Book now" onPress={handleBookSeat} />
+                <BookButton text="Book now" onPress={handleBookSeat} />
               </View>
             </View>
           </View>
@@ -394,9 +652,9 @@ export default function Booking({ navigation }) {
           },
         },
         {
-          name: "chevron-left",
+          name: "settings",
           onPress: () => {
-            navigation.goBack();
+            navigation.navigate("Profile");
           },
         }
       )}
@@ -504,15 +762,10 @@ let styles = StyleSheet.create({
   },
 
   modalToggle: {
-    borderWidth: 1,
-    borderColor: "#f2f2f2",
-    padding: 10,
-    borderRadius: 10,
+    padding: 5,
     alignSelf: "center",
-    backgroundColor: "#efe",
   },
   modalClose: {
-    // marginTop: 20,
     marginTop: 5,
     marginBottom: 0,
   },
@@ -521,12 +774,13 @@ let styles = StyleSheet.create({
   },
   bookingModal: {
     width: SIZES.width,
-    position: "absolute",
+    position: "relative",
     bottom: 0,
     flexDirection: "row",
     justifyContent: "space-between",
     paddingHorizontal: SIZES.padding,
     paddingVertical: SIZES.base,
+    backgroundColor: "#000",
   },
   bookingModalLeft: {
     flexDirection: "column",

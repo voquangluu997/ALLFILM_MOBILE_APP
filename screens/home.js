@@ -15,12 +15,32 @@ import { COLORS, SIZES, api_url } from "../constants";
 import { BookButton } from "../shared/button";
 import { newSeason, comingSoon } from "../constants/dummy";
 import ChildComponent from "../shared/childComponent";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-
-import { StackActions, NavigationActions } from "react-navigation";
+import Promotion from "../shared/promotion";
+import { promotionApi } from "../api";
+import Email from "../shared/email";
+import TitleBar from "../shared/titleBar";
+import { getUser } from "../utils/common";
 
 const Home = ({ navigation }) => {
+  let [promotion, setPromotion] = useState([]);
   let [newSeasonB, setNewSeasonB] = useState([]);
+  let [isLogin, setIsLogin] = useState(false);
+
+  useEffect(() => {
+    getUser().then((u) => {
+      if (u) setIsLogin(true);
+    });
+
+    const getPromo = async () => {
+      try {
+        const res = await promotionApi.getAll();
+        setPromotion(res);
+      } catch (error) {
+        console.log(error);
+      }
+    };
+    getPromo();
+  }, []);
 
   async function fetchMoviesJSON() {
     const response = await fetch(api_url + "/film?limit=10");
@@ -138,9 +158,7 @@ const Home = ({ navigation }) => {
                         style={{
                           color: "#fff",
                         }}
-                      >
-                        {/* {item.duration}, {item.publishDate} */}
-                      </Text>
+                      ></Text>
                     </View>
 
                     <BookButton text="Book now" onPress={onPressBooking} />
@@ -216,19 +234,22 @@ const Home = ({ navigation }) => {
     return <ChildComponent data={comingSoon} navigation={navigation} />;
   }
 
+  function renderPromotion() {
+    return <Promotion data={promotion} navigation={navigation}></Promotion>;
+  }
+
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: "#000" }}>
       {renderHeaderBar(
         {
           name: "code",
-          onPress: () => {
-            console.log("code");
-          },
+          onPress: () => {},
         },
         {
           name: "settings",
           onPress: () => {
-            console.log("settings");
+            if (isLogin) navigation.navigate("Profile");
+            else navigation.navigate("Login");
           },
         }
       )}
@@ -239,6 +260,12 @@ const Home = ({ navigation }) => {
       >
         {renderNewSeasonSection()}
         {renderDots()}
+        {renderPromotion()}
+        <View style={{ marginTop: 20 }}>
+          <TitleBar title="Promotion News"></TitleBar>
+          <Email> </Email>
+        </View>
+
         {renderComingSoon()}
       </ScrollView>
     </SafeAreaView>

@@ -12,7 +12,13 @@ export default function Register({ navigation }) {
     navigation.navigate("Login");
   };
   return (
-    <View style={[globalStyles.container, globalStyles.centerContext]}>
+    <View
+      style={{
+        ...globalStyles.container,
+        ...globalStyles.centerContext,
+        marginTop: 20,
+      }}
+    >
       <KeyboardAwareScrollView>
         <Formik
           initialValues={{
@@ -41,7 +47,7 @@ export default function Register({ navigation }) {
             })
               .then((res) => res.json())
               .then((resData) => {
-                console.log( resData)
+                console.log(resData);
                 if (!resData.error) {
                   navigation.navigate("Home");
                 } else {

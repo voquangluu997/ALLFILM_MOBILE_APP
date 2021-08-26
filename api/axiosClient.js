@@ -4,24 +4,27 @@ import queryString from "query-string";
 import { getToken } from "../utils/common";
 import { API_URL } from "@env";
 
-let config = getToken()
-  ? {
-      "content-type": "application/json",
-      "Access-Control-Allow-Origin": "*",
-      "Access-Control-Allow-Headers":
-        "Origin, X-Requested-With, Content-Type, Accept, Authorization",
-      "Access-Control-Allow-Methods": "POST, GET, OPTIONS, DELETE, PATCH",
+let config;
+getToken().then((token) => {
+  config = token
+    ? {
+        "content-type": "application/json",
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Headers":
+          "Origin, X-Requested-With, Content-Type, Accept, Authorization",
+        "Access-Control-Allow-Methods": "POST, GET, OPTIONS, DELETE, PATCH",
 
-      Authorization: `Bearer ${getToken()}`,
-    }
-  : {
-      "content-type": "application/json",
-      "Access-Control-Allow-Origin": "*",
-      "Access-Control-Allow-Headers":
-        "Origin, X-Requested-With, Content-Type, Accept, Authorization",
-      "Access-Control-Allow-Methods": "POST, GET, OPTIONS, DELETE, PATCH",
-      allowCredentials: "true",
-    };
+        Authorization: `Bearer ${token}`,
+      }
+    : {
+        "content-type": "application/json",
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Headers":
+          "Origin, X-Requested-With, Content-Type, Accept, Authorization",
+        "Access-Control-Allow-Methods": "POST, GET, OPTIONS, DELETE, PATCH",
+        allowCredentials: "true",
+      };
+});
 
 // });
 // Set up default config for http requests here

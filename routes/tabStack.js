@@ -1,6 +1,6 @@
 import HomeScreen from "../routes/homeStack";
 import Login from "../routes/authStack";
-import Profile from "../screens/profile";
+import Setting from "../routes/settingStack";
 import Promotion from "../screens/promotions";
 import React from "react";
 import { createBottomTabNavigator } from "react-navigation-tabs";
@@ -13,7 +13,7 @@ const tabNavigator = createBottomTabNavigator(
     Home: { screen: HomeScreen },
     Promotion: { screen: Promotion },
     Login: { screen: Login },
-    Profile: { screen: Profile },
+    Setting: { screen: Setting },
   },
   {
     defaultNavigationOptions: ({ navigation }) => ({
@@ -23,7 +23,7 @@ const tabNavigator = createBottomTabNavigator(
         if (routeName === "Home") {
           iconName = "home";
         }
-        if (routeName === "Profile") {
+        if (routeName === "Setting") {
           iconName = "person-outline";
         }
         if (routeName === "Promotion") {

@@ -15,14 +15,6 @@ export default function Login({ navigation }) {
     navigation.navigate("Register");
   };
 
-  async function saveUserToken(value) {
-    try {
-      await AsyncStorage.setItem("token", value);
-    } catch (e) {
-      console.log(e);
-    }
-  }
-
   return (
     <ScrollView
       contentContainerStyle={[
@@ -49,7 +41,12 @@ export default function Login({ navigation }) {
                 });
 
                 setUserSession(response.data.access_token, user.data);
-                navigation.navigate("Home");
+                navigation.navigate("Home", {
+                  info: {
+                    user: user.data,
+                    token: response.data.access_token,
+                  },
+                });
               } else {
                 setMessage(resData.error.errors[0].message);
               }

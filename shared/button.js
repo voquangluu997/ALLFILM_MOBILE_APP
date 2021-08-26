@@ -31,12 +31,30 @@ export function BookButton({ text, onPress }) {
   );
 }
 
-export function SeatButton({ text, onPress }) {
+export function DarkButton({ text, onPress }) {
   return (
     <TouchableOpacity onPress={onPress}>
-      <View style={styles.seatButton}>
-        <Text style={styles.seatBookText}>{text}</Text>
+      <View style={{ ...styles.button, ...styles.darkButton }}>
+        <Text style={{ ...styles.buttonText, ...styles.darkButtonText }}>
+          {text}
+        </Text>
       </View>
+    </TouchableOpacity>
+  );
+}
+
+export function SeatButton({ text, onPress, isChoosing }) {
+  return (
+    <TouchableOpacity onPress={onPress}>
+      {isChoosing ? (
+        <View style={[styles.seatButton, styles.seatChoosing]}>
+          <Text style={styles.seatTitleText}>{text}</Text>
+        </View>
+      ) : (
+        <View style={styles.seatButton}>
+          <Text style={styles.seatBookText}>{text}</Text>
+        </View>
+      )}
     </TouchableOpacity>
   );
 }
@@ -121,6 +139,17 @@ let styles = StyleSheet.create({
     paddingHorizontal: 10,
     backgroundColor: "#f01d71",
   },
+
+  darkButton: {
+    backgroundColor: "#000",
+  },
+  darkButtonText: {
+    color: "white",
+    fontWeight: "bold",
+    textTransform: "uppercase",
+    fontSize: 14,
+    textAlign: "center",  },
+
   buttonText: {
     color: "white",
     fontWeight: "bold",
