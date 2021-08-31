@@ -1,6 +1,6 @@
-import HomeScreen from "../routes/homeStack";
-import Login from "../routes/authStack";
-import Setting from "../routes/settingStack";
+import HomeScreen from "./homeStack";
+import Login from "./authStack";
+import Setting from "./settingStack";
 import Promotion from "../screens/promotions";
 import React from "react";
 import { createBottomTabNavigator } from "react-navigation-tabs";

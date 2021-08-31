@@ -67,7 +67,7 @@ export default function Booking({ navigation }) {
   let [openModal, setOpenModal] = useState(false);
   let [session, setSession] = useState([]);
   let [seatSession, setSeatSession] = useState({});
-  let [choosingSeat, setChoosingSeat] = useState(null);
+  let [choosingSeat, setChoosingSeat] = useState({});
   let [numSeat, setNumSeat] = useState(1);
   let [quatity, setQuatity] = useState([0, 0, 0, 0, 0]);
   let [food, setFood] = useState({});
@@ -110,7 +110,9 @@ export default function Booking({ navigation }) {
     showChooseDay = getDay(today.getDay()) + ", " + date(today);
     setChooseDay(chooseDay);
     setShowChooseDay(showChooseDay);
-    setSelectedMovie(navigation.getParam("selectedMovie"));
+    let mv = navigation.getParam("selectedMovie");
+    if (mv.name) mv.title = mv.name;
+    setSelectedMovie(mv);
     arrDay = [];
     setArrDay(arrDay);
     arrDay.push({ day: "Today", date: today.getDate(), fullDate: date(today) });
@@ -159,7 +161,7 @@ export default function Booking({ navigation }) {
       fee: totalPrice + numSeat * seatSession?.price,
       sessionId: seatSession?.id,
       sessionRoomId: seatSession?.roomId,
-      seats: choosingSeat,
+      seats: choosingSeat.isChoosing,
       foodDrinks,
       bookingTime,
       keepingTime,
@@ -176,12 +178,16 @@ export default function Booking({ navigation }) {
           navigation.navigate("Payment", { paymentInfo: res.data });
         })
         .catch((error) => {
-          alert("Chỗ đã được đặt, vui lòng kiểm tra lại");
+          if (error.response.status == 401)
+            alert(" vui lòng đăng nhập để đặt vé");
+          else alert("Chỗ đã được đặt, vui lòng kiểm tra lại");
 
-          console.log(error);
+          console.log(error.response.status);
         });
     };
-    getBooking();
+
+    if (choosingSeat.length != numSeat) alert("Bạn chưa chọn đủ số lượng vé ");
+    else getBooking();
   };
   function renderModal() {
     return (
@@ -249,8 +255,9 @@ export default function Booking({ navigation }) {
                 <BookSeat
                   bookedSeats={seatSession.bookedSeats}
                   onSubmit={(seat) => {
-                    setChoosingSeat(seat.isChoosing);
+                    setChoosingSeat(seat);
                   }}
+                  numTicket={numSeat}
                 />
               </View>
 

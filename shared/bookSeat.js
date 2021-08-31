@@ -1,20 +1,14 @@
 import { SeatButton, SeatChoosed, SeatTitle } from "./button";
-import React, { useState } from "react";
-import {
-  Text,
-  View,
-  StyleSheet,
-  Image,
-  ImageBackground,
-  ScrollView,
-} from "react-native";
-import { MaterialIcons } from "@expo/vector-icons";
+import React, { useState, useEffect } from "react";
+import { View, StyleSheet } from "react-native";
 import { Dimensions } from "react-native";
-import { set } from "react-native-reanimated";
 
-export default function BookSeat({ bookedSeats, onSubmit }) {
-  const [isChoosing, setIsChoosing] = useState(false);
+export default function BookSeat({ bookedSeats, onSubmit, numTicket }) {
+  const [isChoosing, setIsChoosing] = useState([]);
 
+  useEffect(() => {
+    setIsChoosing([]);
+  }, []);
   const getTitle = (n) => {
     switch (n) {
       case 0:
@@ -51,9 +45,41 @@ export default function BookSeat({ bookedSeats, onSubmit }) {
   };
 
   const handleSubmit = (i) => {
-    setIsChoosing(i);
-    onSubmit({ isChoosing: `${getTitle(Math.floor(i / 12))}-${i % 12}` });
+    if (isChoosing.length > numTicket) {
+      let temp = [];
+      temp.push(i);
+      setIsChoosing(temp);
+    } else {
+      let index = isChoosing.indexOf(i);
+
+      if (index > -1) {
+        let temp = isChoosing;
+        temp = temp.slice(0, index).concat(temp.slice(index + 1));
+        setIsChoosing(temp);
+      } else {
+        if (isChoosing.length < numTicket) {
+          let temp = isChoosing;
+          temp.push(i);
+          setIsChoosing(temp);
+        } else {
+          let temp = isChoosing;
+          temp = temp.slice(1);
+          temp.push(i);
+          setIsChoosing(temp);
+        }
+      }
+    }
+
+    let x = isChoosing;
+    x = x
+      .map((item) => {
+        return `${getTitle(Math.floor(item / 12))}-${item % 12}`;
+      })
+      .join();
+
+    onSubmit({ isChoosing: x, length: isChoosing.length });
   };
+
   const list = () => {
     const seats = bookedSeats?.split(",");
 
@@ -70,7 +96,7 @@ export default function BookSeat({ bookedSeats, onSubmit }) {
               onPress={() => {
                 handleSubmit(i);
               }}
-              isChoosing={i == isChoosing}
+              isChoosing={isChoosing.includes(i)}
             ></SeatButton>
           );
     });

@@ -33,10 +33,11 @@ const MovieDetail = ({ navigation }) => {
   }
   useEffect(() => {
     getUser().then((u) => {
-      if (u) setIsLogin(true);
+      if (u && u != null) setIsLogin(true);
+      else setIsLogin(false);
       console.log("user:", u);
     });
-
+    console.log(isLogin);
     getToken().then((t) => {
       setToken(t);
     });

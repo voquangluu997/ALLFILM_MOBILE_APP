@@ -35,6 +35,7 @@ const Home = ({ navigation }) => {
       try {
         const res = await promotionApi.getAll();
         setPromotion(res);
+        console.log("Eeee", res);
       } catch (error) {
         console.log(error);
       }

@@ -27,10 +27,10 @@ export default function Login({ navigation }) {
         onSubmit={async (values, actions) => {
           axios
             .post(`${API_URL}/auth/login`, {
-              username: "anhnguyenhoang321@gmail.com",
+              username: "ramenhoang",
               // username: values.username,
               // password: values.password,
-              password: "Aa@12345",
+              password: "Aa@123456",
             })
             .then(async (response) => {
               if (!response.error) {
@@ -52,8 +52,8 @@ export default function Login({ navigation }) {
               }
             })
             .catch((error) => {
-              console.log(error);
-              alert(error);
+              alert(error.response.data.error.errors[0].message);
+              // alert(error.response.error.errors[0].message);
             });
 
           // fetch(api_url + "/auth/login", {

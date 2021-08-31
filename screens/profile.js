@@ -12,9 +12,9 @@ export default function Profile({ navigation }) {
   let [isLogin, setIsLogin] = useState(false);
 
   useEffect(() => {
-    setIsLogin(isLogin);
     getUser().then((u) => {
-      // if(user) setIsLogin(true);
+      if (u && u != null) setIsLogin(true);
+      console.log("uxx", u);
       setUserInfo(u);
     });
 
@@ -28,15 +28,16 @@ export default function Profile({ navigation }) {
 
     // if (!isLogin) alert("you need login to review this movie");
     // else {
-    axios
-      .get(`${api_url}/user/profile`, config)
-      .then((res) => {
-        console.log("data", res.data);
-        setIsLogin(true);
-      })
-      .catch((error) => {
-        console.log(error);
-      });
+    if (token)
+      axios
+        .get(`${api_url}/user/profile`, config)
+        .then((res) => {
+          console.log("data", res.data);
+          setIsLogin(true);
+        })
+        .catch((error) => {
+          console.log(error);
+        });
     // }
   }, [isLogin]);
 
@@ -53,10 +54,18 @@ export default function Profile({ navigation }) {
         <ProfileItem icon="email" content={userInfo?.email} />
         <ProfileItem icon="phone" content={userInfo?.phone} />
         <ProfileLine title="Transaction history" />
-        <ProfileLine title="Update password" onPress  ={()=>{
-          navigation.navigate("UpdatePassword");
-        }}/>
-        <ProfileLine title="Update personal infomation" />
+        <ProfileLine
+          title="Update password"
+          onPress={() => {
+            navigation.navigate("UpdatePassword");
+          }}
+        />
+        <ProfileLine
+          title="Update personal infomation"
+          onPress={() => {
+            navigation.navigate("UpdateInfo");
+          }}
+        />
         <View style={{ marginVertical: 30 }}>
           <View style={{ flexDirection: "row", justifyContent: "center" }}>
             <FlatButton
@@ -64,7 +73,9 @@ export default function Profile({ navigation }) {
               onPress={() => {
                 removeUserSession();
                 setIsLogin(!isLogin);
-                // setUserInfo(null);
+                setUserInfo(null);
+                setToken(null);
+                console.log(userInfo);
                 navigation.navigate("Login");
               }}
             />

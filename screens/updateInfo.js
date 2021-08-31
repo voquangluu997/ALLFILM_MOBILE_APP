@@ -12,9 +12,10 @@ import { getToken } from "../utils/common";
 export default function UpdateInfo({ navigation }) {
   const [message, setMessage] = useState("");
   let [token, setToken] = useState(null);
-  let [currentPassword, setCurrentPassword] = useState(null);
-  let [newPassword, setNewPassword] = useState(null);
-  let [confirmPassword, setConfirmPassword] = useState(null);
+  let [name, setName] = useState(null);
+  let [fullName, setFullName] = useState(null);
+  let [email, setEmail] = useState(null);
+  let [phone, setPhone] = useState(null);
   useEffect(() => {
     getToken().then((t) => {
       setToken(t);
@@ -22,7 +23,7 @@ export default function UpdateInfo({ navigation }) {
   }, []);
 
   const pressHandler = () => {
-    navigation.navigate("Login");
+    navigation.navigate("Home");
   };
 
   return (
@@ -34,9 +35,10 @@ export default function UpdateInfo({ navigation }) {
     >
       <Formik
         initialValues={{
-          currentPassword: "",
-          newPassword: "",
-          confirmPassword: "",
+          name: "",
+          fullName: "",
+          email: "",
+          phone: "",
         }}
         onSubmit={async (values, actions) => {
           const config = {
@@ -45,21 +47,25 @@ export default function UpdateInfo({ navigation }) {
 
           axios
             .put(
-              `${API_URL}/user/profile/password`,
+              `${API_URL}/user/profile`,
               {
-                currentPassword,
-                newPassword,
-                confirmPassword,
+                name,
+                fullname: fullName,
+                email,
+                phone,
               },
               config
             )
             .then(async (response) => {
-              alert(" Bạn đã đổi mật khẩu thành công");
-              navigation.navigate("Profile")
+              // setUser(response);
+              alert(" Cập nhật thông tin thành công");
+              // navigation.navigate("Profile");
             })
             .catch((error) => {
-              alert(error.response.data.error.errors[0].message);
-              // alert(error);
+              console.log(error);
+              alert(
+                " cập nhật thất bại, vui lòng kiểm tra lại thông tin đã nhập"
+              );
             });
         }}
       >
@@ -67,53 +73,54 @@ export default function UpdateInfo({ navigation }) {
           <View>
             <TextInput
               style={globalStyles.input}
-              placeholder="Current pasword"
-              onChangeText={
-                (value) => {
-                  setCurrentPassword(value);
-                }
-                // (props.handleChange("currentPassword")
-                // setCurrentPassword(props.values.currentPassword)
-              }
-              value={currentPassword}
-              onBlur={props.handleBlur("currentPassword")}
-            />
-            {/* <Text style={globalStyles.errorText}>
-              {props.touched.currentPassword && props.errors.title}
-            </Text> */}
-
-            <TextInput
-              style={globalStyles.input}
-              secureTextEntry={true}
-              placeholder="New Password"
+              placeholder="Name"
               onChangeText={(value) => {
-                setNewPassword(value);
+                setName(value);
               }}
-              value={newPassword}
-              onBlur={props.handleBlur("newPassword")}
+              value={name}
+              onBlur={props.handleBlur("name")}
             />
 
             <TextInput
               style={globalStyles.input}
-              secureTextEntry={true}
-              placeholder="Confirm Password"
+              placeholder="Full name"
               onChangeText={(value) => {
-                setConfirmPassword(value);
+                setFullName(value);
               }}
-              value={confirmPassword}
-              onBlur={props.handleBlur("confirmPassword")}
+              value={fullName}
+              onBlur={props.handleBlur("fullName")}
+            />
+
+            <TextInput
+              style={globalStyles.input}
+              placeholder="Email"
+              onChangeText={(value) => {
+                setEmail(value);
+              }}
+              value={email}
+              onBlur={props.handleBlur("email")}
+            />
+
+            <TextInput
+              style={globalStyles.input}
+              placeholder="Phone"
+              onChangeText={(value) => {
+                setPhone(value);
+              }}
+              value={phone}
+              onBlur={props.handleBlur("phone")}
             />
 
             <Text style={globalStyles.errorText}>{message}</Text>
 
             <FlatButton
-              text="Update Password"
+              text="Update Profile"
               onPress={props.handleSubmit}
             ></FlatButton>
 
             <Text style={styles.centerText}> Or</Text>
             <TransParentButton
-              text="Move to Login"
+              text="Move to Home"
               onPress={pressHandler}
             ></TransParentButton>
           </View>
@@ -126,5 +133,4 @@ export default function UpdateInfo({ navigation }) {
 let styles = StyleSheet.create({
   underline: { textDecorationLine: "underline" },
   centerText: { textAlign: "center", marginTop: 15, marginBottom: 10 },
-  // registerButton: { backgroundColor: "#eee", marginTop: 100 },
 });
